@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,14 +14,19 @@ namespace mShop.Data.Entities
         public int ViewCount { set; get; }
         public DateTime DateCreated { set; get; }
 
-        //public List<ProductInCategory> ProductInCategories { get; set; }
+        // 1 product co nhieu ProductCategory
+        public List<ProductInCategory> ProductInCategories { get; set; }
 
-        //public List<OrderDetail> OrderDetails { get; set; }
+        // 1 order co nhieu OrderDetail
+        public List<OrderDetail> OrderDetails { get; set; }
 
-        //public List<Cart> Carts { get; set; }
+        // 1 order co nhieu Carts
+        public List<Cart> Carts { get; set; } // 1 cart co nhieu product
 
-        //public List<ProductTranslation> ProductTranslations { get; set; }
+        // 1 product co nhieu producttranslation
+        public List<ProductTranslation> ProductTranslations { get; set; }
 
-        //public List<ProductImage> ProductImages { get; set; }
+        // 1 product co nhieu productimage
+        public List<ProductImage> ProductImages { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace mShop.Data.EF
         {
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("")
+                .AddJsonFile("appsetting.json")
                 .Build();
 
             // chuoi conection string lay tu file appsetting.json

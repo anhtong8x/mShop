@@ -1,13 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using mShop.Data.Configurations;
 using mShop.Data.Entities;
+using mShop.Data.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace mShop.Data.EF
 {
-    public class MShopDbContext : DbContext
+    public class MShopDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {
         // contructor
         public MShopDbContext(DbContextOptions options) : base(options)
@@ -38,6 +39,17 @@ namespace mShop.Data.EF
             modelBuilder.ApplyConfiguration(new AppUserConfiguration());
             modelBuilder.ApplyConfiguration(new AppRoleConfiguration());
             modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
+
+            // khai bao config cho cac bang o trong lop cha IdentityDbContext
+            modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaims");
+            modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("AppUserRoles").HasKey(x => new { x.UserId, x.RoleId });
+            modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("AppUserLogins").HasKey(x => x.UserId);
+
+            modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppRoleClaims");
+            modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens").HasKey(x => x.UserId);
+
+            //Data seeding. Du lieu mau trong thu muc extensions
+            modelBuilder.Seed();
         }
 
         // khai bao cac class table

@@ -1,8 +1,7 @@
 ﻿using mShop.Application.Catalog.Products.Dtos;
+using mShop.Application.Catalog.Products.Dtos.Manage;
 using mShop.Application.Dtos;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace mShop.Application.Catalog.Products
@@ -11,12 +10,18 @@ namespace mShop.Application.Catalog.Products
     {
         Task<int> Create(ProductCreateRequest request);
 
-        Task<int> Edit(ProductEditRequest request);
+        Task<int> Update(ProductUpdateRequest request);
 
-        Task<int> Delete(int Id);
+        Task<int> UpdatePrice(int productId, decimal newPrice);
+
+        Task<bool> UpdateStock(int productId, int addedQuantity);
+
+        Task AddViewCount(int productId);   // kieu void
+
+        Task<int> Delete(int productId);
 
         Task<List<ProductViewModel>> GetAll();
 
-        Task<PageViewModel<ProductViewModel>> GetPaging(string keyWord, int pageIndex, int pageSize);
+        Task<PageResult<ProductViewModel>> GetPaging(GetProductPagingRequest request);
     }
 }

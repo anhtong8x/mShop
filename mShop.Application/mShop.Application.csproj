@@ -6,6 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\mShop.Data\mShop.Data.csproj" />
+    <ProjectReference Include="..\mShop.Ultilities\mShop.Ultilities.csproj" />
   </ItemGroup>
-
 </Project>

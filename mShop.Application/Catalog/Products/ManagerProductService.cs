@@ -111,19 +111,40 @@ namespace mShop.Application.Catalog.Products
             return pageResult;
         }
 
-        public Task<int> Update(ProductUpdateRequest request)
+        public async Task<int> Update(ProductUpdateRequest request)
         {
-            throw new NotImplementedException();
+            var product = await _dbContext.Products.FindAsync(request.Id);
+            var productTranslations = await _dbContext.ProductTranslations
+                .FirstOrDefaultAsync(x => x.ProductId == request.Id
+                && x.LanguageId == request.LanguageId);
+
+            if (product == null || productTranslations == null)
+                new mShopException($"Cannot find a product with id: {request.Id}");
+
+            productTranslations.Name = request.Name;
+            productTranslations.SeoAlias = request.SeoAlias;
+            productTranslations.SeoDescription = request.SeoDescription;
+            productTranslations.SeoTitle = request.SeoTitle;
+            productTranslations.Description = request.Description;
+            productTranslations.Details = request.Details;
+
+            return await _dbContext.SaveChangesAsync();
         }
 
-        public Task<int> UpdatePrice(int productId, decimal newPrice)
+        public async Task<bool> UpdatePrice(int productId, decimal newPrice)
         {
-            throw new NotImplementedException();
+            var product = await _dbContext.Products.FindAsync(productId);
+            if (product == null) throw new mShopException($"Cannot find a with: {productId}");
+            product.Price = newPrice;
+            return await _dbContext.SaveChangesAsync() > 0;
         }
 
-        Task<bool> IManageProductService.UpdateStock(int productId, int addedQuantity)
+        public async Task<bool> UpdateStock(int productId, int addedQuantity)
         {
-            throw new NotImplementedException();
+            var product = await _dbContext.Products.FindAsync(productId);
+            if (product == null) throw new mShopException($"Cannot find a with: {productId}");
+            product.Price += addedQuantity;
+            return await _dbContext.SaveChangesAsync() > 0;
         }
     }
 }

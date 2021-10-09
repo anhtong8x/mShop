@@ -12,7 +12,7 @@ namespace mShop.Application.Catalog.Products
 
         Task<int> Update(ProductUpdateRequest request);
 
-        Task<int> UpdatePrice(int productId, decimal newPrice);
+        Task<bool> UpdatePrice(int productId, decimal newPrice);
 
         Task<bool> UpdateStock(int productId, int addedQuantity);
 

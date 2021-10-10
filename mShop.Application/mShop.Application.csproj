@@ -1,17 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
-    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\mShop.Data\mShop.Data.csproj" />
-    <ProjectReference Include="..\mShop.Ultilities\mShop.Ultilities.csproj" />
-    <ProjectReference Include="..\mShop.ViewModel\mShop.ViewModel.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\mShop.Data\mShop.Data.csproj" />
+		<ProjectReference Include="..\mShop.Ultilities\mShop.Ultilities.csproj" />
+		<ProjectReference Include="..\mShop.ViewModel\mShop.ViewModel.csproj" />
+	</ItemGroup>
 </Project>

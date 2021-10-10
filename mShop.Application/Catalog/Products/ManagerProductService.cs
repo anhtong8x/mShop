@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
+using mShop.Application.Common;
 using mShop.Data.EF;
 using mShop.Data.Entities;
 using mShop.Ultilities.Exceptions;
+using mShop.ViewModel.Catalog.ProductImage;
 using mShop.ViewModel.Catalog.Products;
 using mShop.ViewModel.Catalog.Products.Manage;
 using mShop.ViewModel.Common;
@@ -18,10 +20,33 @@ namespace mShop.Application.Catalog.Products
     public class ManagerProductService : IManageProductService
     {
         private readonly MShopDbContext _dbContext;
+        private readonly IStorageService _storageService;   // de luu file anh product
 
-        public ManagerProductService(MShopDbContext dbConext)
+        public ManagerProductService(MShopDbContext dbConext, IStorageService storageService)
         {
             _dbContext = dbConext;
+            _storageService = storageService;
+        }
+
+        public async Task<int> AddImage(int productId, ProductImageCreateRequest request)
+        {
+            var productImage = new ProductImage()
+            {
+                Caption = request.Caption,
+                DateCreated = DateTime.Now,
+                IsDefault = request.IsDefault,
+                ProductId = productId,
+                SortOrder = request.SortOrder
+            };
+
+            if (request.ImageFile != null)
+            {
+                productImage.ImagePath = await this.SaveFile(request.ImageFile);
+                productImage.FileSize = request.ImageFile.Length;
+            }
+            _dbContext.ProductImages.Add(productImage);
+            await _dbContext.SaveChangesAsync();
+            return productImage.Id;
         }
 
         public async Task AddViewCount(int productId)
@@ -54,6 +79,21 @@ namespace mShop.Application.Catalog.Products
             };
 
             // save image
+            if (request.ThumbnailImage != null)
+            {
+                item.ProductImages = new List<ProductImage>()
+                {
+                    new ProductImage()
+                    {
+                        Caption = "Thumbnail image",
+                        DateCreated = DateTime.Now,
+                        FileSize = request.ThumbnailImage.Length,
+                        ImagePath = await this.SaveFile(request.ThumbnailImage),
+                        IsDefault = true,
+                        SortOrder = 1
+                    }
+                };
+            }
 
             _dbContext.Products.Add(item);
 
@@ -64,11 +104,28 @@ namespace mShop.Application.Catalog.Products
         {
             var product = await _dbContext.Products.FindAsync(productId);
             if (product == null) throw new mShopException($"Cannot find a product: {productId}");
+            // get tat ca cac anh cua product theo id va xoa het anh do
+            var images = _dbContext.ProductImages.Where(i => i.ProductId == productId);
+            foreach (var image in images)
+            {
+                await _storageService.DeleteFileAsync(image.ImagePath);
+            }
+
             _dbContext.Products.Remove(product);
             return await _dbContext.SaveChangesAsync();
         }
 
         public Task<List<ProductViewModel>> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProductImageViewModel> GetImageById(int imageId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<ProductImageViewModel>> GetListImages(int productId)
         {
             throw new NotImplementedException();
         }
@@ -116,6 +173,15 @@ namespace mShop.Application.Catalog.Products
             return pageResult;
         }
 
+        public async Task<int> RemoveImage(int imageId)
+        {
+            var productImage = await _dbContext.ProductImages.FindAsync(imageId);
+            if (productImage == null)
+                throw new mShopException($"Cannot find an image with id {imageId}");
+            _dbContext.ProductImages.Remove(productImage);
+            return await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<int> Update(ProductUpdateRequest request)
         {
             var product = await _dbContext.Products.FindAsync(request.Id);
@@ -133,6 +199,33 @@ namespace mShop.Application.Catalog.Products
             productTranslations.Description = request.Description;
             productTranslations.Details = request.Details;
 
+            //Save image update
+            if (request.ThumbnailImage != null)
+            {
+                var thumbnailImage = await _dbContext.ProductImages.FirstOrDefaultAsync(i => i.IsDefault == true && i.ProductId == request.Id);
+                if (thumbnailImage != null)
+                {
+                    thumbnailImage.FileSize = request.ThumbnailImage.Length;
+                    thumbnailImage.ImagePath = await this.SaveFile(request.ThumbnailImage);
+                    _dbContext.ProductImages.Update(thumbnailImage);
+                }
+            }
+
+            return await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request)
+        {
+            var productImage = await _dbContext.ProductImages.FindAsync(imageId);
+            if (productImage == null)
+                throw new mShopException($"Cannot find an image with id {imageId}");
+
+            if (request.ImageFile != null)
+            {
+                productImage.ImagePath = await this.SaveFile(request.ImageFile);
+                productImage.FileSize = request.ImageFile.Length;
+            }
+            _dbContext.ProductImages.Update(productImage);
             return await _dbContext.SaveChangesAsync();
         }
 
@@ -154,7 +247,7 @@ namespace mShop.Application.Catalog.Products
 
         private async Task<string> SaveFile(IFormFile file)
         {
-            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            var originalFileName = System.Net.Http.Headers.ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
             await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
             return fileName;

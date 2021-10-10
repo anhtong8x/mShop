@@ -1,11 +1,11 @@
-﻿using mShop.Application.Catalog.Products.Dtos;
-using mShop.Application.Catalog.Products.Dtos.Public;
-using mShop.Application.Dtos;
-using mShop.Data.EF;
+﻿using mShop.Data.EF;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using mShop.ViewModel.Common;
+using mShop.ViewModel.Catalog.Products;
+using mShop.ViewModel.Catalog.Products.Public;
 
 namespace mShop.Application.Catalog.Products
 {
@@ -59,6 +59,11 @@ namespace mShop.Application.Catalog.Products
             };
 
             return pageResult;
+        }
+
+        Task<PageResult<ProductViewModel>> IPublicProductService.GetAllByCategoryId(GetProductPagingRequest request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

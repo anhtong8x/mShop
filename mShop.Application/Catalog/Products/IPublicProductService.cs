@@ -1,5 +1,5 @@
 ﻿using mShop.ViewModel.Catalog.Products;
-using mShop.ViewModel.Catalog.Products.Manage;
+using mShop.ViewModel.Catalog.Products.Public;
 using mShop.ViewModel.Common;
 using System.Threading.Tasks;
 

@@ -1,4 +1,5 @@
-﻿using mShop.ViewModel.Catalog.Products;
+﻿using mShop.ViewModel.Catalog.ProductImage;
+using mShop.ViewModel.Catalog.Products;
 using mShop.ViewModel.Catalog.Products.Manage;
 using mShop.ViewModel.Common;
 using System.Collections.Generic;
@@ -23,5 +24,15 @@ namespace mShop.Application.Catalog.Products
         Task<List<ProductViewModel>> GetAll();
 
         Task<PageResult<ProductViewModel>> GetPaging(GetProductPagingRequest request);
+
+        Task<int> AddImage(int productId, ProductImageCreateRequest request);
+
+        Task<int> RemoveImage(int imageId);
+
+        Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request);
+
+        Task<ProductImageViewModel> GetImageById(int imageId);
+
+        Task<List<ProductImageViewModel>> GetListImages(int productId);
     }
 }

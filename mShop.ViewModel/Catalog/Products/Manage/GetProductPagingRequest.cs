@@ -1,7 +1,7 @@
-﻿using mShop.Application.Dtos;
+﻿using mShop.ViewModel.Common;
 using System.Collections.Generic;
 
-namespace mShop.Application.Catalog.Products.Dtos.Manage
+namespace mShop.ViewModel.Catalog.Products.Manage
 {
     public class GetProductPagingRequest : PagingRequestBase
     {

@@ -1,12 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using mShop.Application.Catalog.Products.Dtos;
-using mShop.Application.Catalog.Products.Dtos.Manage;
-using mShop.Application.Dtos;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using mShop.Data.EF;
 using mShop.Data.Entities;
 using mShop.Ultilities.Exceptions;
+using mShop.ViewModel.Catalog.Products;
+using mShop.ViewModel.Catalog.Products.Manage;
+using mShop.ViewModel.Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -49,6 +52,8 @@ namespace mShop.Application.Catalog.Products
                     }
                 }
             };
+
+            // save image
 
             _dbContext.Products.Add(item);
 
@@ -146,5 +151,15 @@ namespace mShop.Application.Catalog.Products
             product.Price += addedQuantity;
             return await _dbContext.SaveChangesAsync() > 0;
         }
+
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
+            return fileName;
+        }
+
+        //
     }
 }

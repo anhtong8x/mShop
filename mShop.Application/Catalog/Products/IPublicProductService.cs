@@ -1,6 +1,6 @@
-﻿using mShop.Application.Catalog.Products.Dtos;
-using mShop.Application.Catalog.Products.Dtos.Public;
-using mShop.Application.Dtos;
+﻿using mShop.ViewModel.Catalog.Products;
+using mShop.ViewModel.Catalog.Products.Manage;
+using mShop.ViewModel.Common;
 using System.Threading.Tasks;
 
 namespace mShop.Application.Catalog.Products

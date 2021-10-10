@@ -19,6 +19,7 @@ namespace mShop.Data.Configurations
             builder.Property(x => x.Caption).HasMaxLength(200);
 
             // 1 product co nhieu productImage
+            // trong bang product khai bao list ProductImage
             builder.HasOne(x => x.Product).WithMany(x => x.ProductImages).HasForeignKey(x => x.ProductId);
         }
     }

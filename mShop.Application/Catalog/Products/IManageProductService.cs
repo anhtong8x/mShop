@@ -1,6 +1,6 @@
-﻿using mShop.Application.Catalog.Products.Dtos;
-using mShop.Application.Catalog.Products.Dtos.Manage;
-using mShop.Application.Dtos;
+﻿using mShop.ViewModel.Catalog.Products;
+using mShop.ViewModel.Catalog.Products.Manage;
+using mShop.ViewModel.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mShop.Data", "mShop.Data\mS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mShop.Application", "mShop.Application\mShop.Application.csproj", "{903AAFAA-478B-4E7A-94B5-3523DAE6CC98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mShop.Ultilities", "mShop.Ultilities\mShop.Ultilities.csproj", "{022D349A-2B4C-40EE-BB07-2FA9577739A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mShop.Ultilities", "mShop.Ultilities\mShop.Ultilities.csproj", "{022D349A-2B4C-40EE-BB07-2FA9577739A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mShop.ViewModel", "mShop.ViewModel\mShop.ViewModel.csproj", "{B3530BA5-8B6E-4858-AB28-650894778AF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{022D349A-2B4C-40EE-BB07-2FA9577739A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{022D349A-2B4C-40EE-BB07-2FA9577739A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{022D349A-2B4C-40EE-BB07-2FA9577739A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3530BA5-8B6E-4858-AB28-650894778AF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3530BA5-8B6E-4858-AB28-650894778AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3530BA5-8B6E-4858-AB28-650894778AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3530BA5-8B6E-4858-AB28-650894778AF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

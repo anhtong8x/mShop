@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace mShop.Application.Catalog.Products.Dtos.Manage
+namespace mShop.ViewModel.Catalog.Products.Manage
 {
     public class ProductCreateRequest
     {
-        public String Name { get; set; }
+        public string Name { get; set; }
         public decimal Price { get; set; }
         public decimal OriginalPrice { set; get; }
         public int Stock { set; get; }
@@ -20,5 +21,7 @@ namespace mShop.Application.Catalog.Products.Dtos.Manage
 
         public string SeoAlias { get; set; }
         public string LanguageId { get; set; }
+
+        public IFormFile ThumbnailImage { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace mShop.ViewModel.Catalog.Products.Manage
+namespace mShop.ViewModel.Catalog.Products
 {
     public class ProductCreateRequest
     {

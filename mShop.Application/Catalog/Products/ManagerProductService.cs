@@ -7,7 +7,6 @@ using mShop.Data.Entities;
 using mShop.Ultilities.Exceptions;
 using mShop.ViewModel.Catalog.ProductImage;
 using mShop.ViewModel.Catalog.Products;
-using mShop.ViewModel.Catalog.Products.Manage;
 using mShop.ViewModel.Common;
 using System;
 using System.Collections.Generic;
@@ -130,7 +129,7 @@ namespace mShop.Application.Catalog.Products
             throw new NotImplementedException();
         }
 
-        public async Task<PageResult<ProductViewModel>> GetPaging(GetProductPagingRequest request)
+        public async Task<PageResult<ProductViewModel>> GetPaging(GetManagerProductPagingRequest request)
         {
             // 1. Select join
             var query = from p in _dbContext.Products
@@ -138,9 +137,12 @@ namespace mShop.Application.Catalog.Products
                         join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId
                         join c in _dbContext.Categories on pic.CategoryId equals c.Id
                         select new { p, pt, pic };
+
             // 2. Filter
-            if (!string.IsNullOrEmpty(request.KeyWord))
-                query = query.Where(x => x.pt.Name.Contains(request.KeyWord));
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                query = query.Where(x => x.pt.Name.Contains(request.Keyword));
+            }
 
             // 3. Paging
             int totalRow = await query.CountAsync();

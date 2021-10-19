@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using mShop.Application.Catalog.Products;
-using mShop.Ultilities.Constants;
 
 namespace mShop.BackendApi.Controllers
 {
@@ -13,27 +12,18 @@ namespace mShop.BackendApi.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IPublicProductService _PublicProductService;
+        private readonly IPublicProductService mIPublicProductService;
 
-        public ProductController(IPublicProductService mPublicProductService)
+        public ProductController(IPublicProductService nIPublicProductService)
         {
-            _PublicProductService = mPublicProductService;
+            mIPublicProductService = nIPublicProductService;
         }
 
-        // test controller
-        //[HttpGet]
-        //public async Task<IActionResult> Get()
-        //{
-        //    return Ok("test");
-        //}
-
-        //
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> Get()
         {
-            //var products = await _PublicProductService.GetAll();
-            //return Ok(products);
-            return Ok(SystemConstants.MainConnectionString);
+            var products = await mIPublicProductService.GetAll();
+            return Ok(products);
         }
     }
 }

@@ -27,14 +27,19 @@ namespace mShop.BackendApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //1. cau hinh ket noi den sql db
-            services.AddDbContext<MShopDbContext>(
-            options => options.UseSqlServer(SystemConstants.MainConnectionString));
+            // 1. cau hinh chuoi ket noi
+            //services.AddDbContext<MShopDbContext>(option =>
+            //option.UseSqlServer(Configuration.GetConnectionString("mShopDb")));
+            services.AddDbContext<MShopDbContext>(option =>
+            option.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
 
-            //2. khai bao DI cac service
+            // 2. DI cac service
+            // Phai khai bao cac service se dung trong cac controller
+
+            // Moi lan yc 1 obj IPublicProductService thi se khoi tao 1 obj class PublicProductService
             services.AddTransient<IPublicProductService, PublicProductService>();
 
-            // Mac dinh cua project
+            // 3. mac dinh
             services.AddControllersWithViews();
         }
 

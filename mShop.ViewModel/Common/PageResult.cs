@@ -6,7 +6,7 @@ namespace mShop.ViewModel.Common
 {
     public class PageResult<T>
     {
-        public int TotlaPage { get; set; }
+        public int TotalPage { get; set; }
         public List<T> Items { get; set; }
     }
 }

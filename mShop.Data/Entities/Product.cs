@@ -14,7 +14,7 @@ namespace mShop.Data.Entities
         public int ViewCount { set; get; }
         public DateTime DateCreated { set; get; }
 
-        // 1 product co nhieu ProductCategory
+        // 1 categori co nhieu product. Quan he 1( Categories ) nhieu ( Product )
         public List<ProductInCategory> ProductInCategories { get; set; }
 
         // 1 order co nhieu OrderDetail

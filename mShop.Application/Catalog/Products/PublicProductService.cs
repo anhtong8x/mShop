@@ -11,20 +11,21 @@ namespace mShop.Application.Catalog.Products
 {
     public class PublicProductService : IPublicProductService
     {
-        private readonly MShopDbContext _dbContext;
+        private readonly MShopDbContext mDbContext;
 
         public PublicProductService(MShopDbContext dbConext)
         {
-            _dbContext = dbConext;
+            mDbContext = dbConext;
         }
 
-        public async Task<List<ProductViewModel>> GetAll()
+        public async Task<List<ProductViewModel>> GetAll(string languageId)
         {
             // 1. Select join
-            var query = from p in _dbContext.Products
-                        join pt in _dbContext.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId
-                        join c in _dbContext.Categories on pic.CategoryId equals c.Id
+            var query = from p in mDbContext.Products
+                        join pt in mDbContext.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in mDbContext.ProductInCategories on p.Id equals pic.ProductId
+                        join c in mDbContext.Categories on pic.CategoryId equals c.Id
+                        where pt.LanguageId == languageId
                         select new { p, pt, pic };
 
             var data = await query
@@ -47,13 +48,14 @@ namespace mShop.Application.Catalog.Products
             return data;
         }
 
-        public async Task<PageResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
+        public async Task<PageResult<ProductViewModel>> GetAllPagingByLanguageId(string languageId, GetPublicProductPagingRequest request)
         {
             // 1. Select join
-            var query = from p in _dbContext.Products
-                        join pt in _dbContext.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId
-                        join c in _dbContext.Categories on pic.CategoryId equals c.Id
+            var query = from p in mDbContext.Products
+                        join pt in mDbContext.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in mDbContext.ProductInCategories on p.Id equals pic.ProductId
+                        join c in mDbContext.Categories on pic.CategoryId equals c.Id
+                        where pt.LanguageId == languageId
                         select new { p, pt, pic };
             // 2. Filter
             if (request.CategoryId.HasValue && request.CategoryId.Value > 0)
@@ -83,7 +85,7 @@ namespace mShop.Application.Catalog.Products
             // 4. Select and projection
             var pageResult = new PageResult<ProductViewModel>()
             {
-                TotlaPage = totalRow,
+                TotalPage = totalRow,
                 Items = data
             };
 

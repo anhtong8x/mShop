@@ -25,6 +25,7 @@ namespace mShop.Application.Common
         public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName)
         {
             var filePath = Path.Combine(_userContentFolder, fileName);
+            // ktra filePath k ton tai thu muc thi fai tao moi
             using var output = new FileStream(filePath, FileMode.Create);
             await mediaBinaryStream.CopyToAsync(output);
         }

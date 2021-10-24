@@ -11,12 +11,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mShop.Ultilities", "mShop.U
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mShop.ViewModel", "mShop.ViewModel\mShop.ViewModel.csproj", "{B3530BA5-8B6E-4858-AB28-650894778AF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mShop.BackendApi", "mShop.BackendApi\mShop.BackendApi.csproj", "{D075A714-79D4-48F6-88FB-50DF9D99A77A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mShop.BackendApi", "mShop.BackendApi\mShop.BackendApi.csproj", "{D075A714-79D4-48F6-88FB-50DF9D99A77A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{18CF657C-FFD3-4431-94E1-072E88D0526B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0.Solution Items", "0.Solution Items", "{18CF657C-FFD3-4431-94E1-072E88D0526B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Infuctructure", "1.Infuctructure", "{ACDB07C3-51E3-4DE7-91DE-C2A54F4741BF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2.Domain", "2.Domain", "{A58643CD-C045-4004-9730-64486600FB4E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.Hosts", "3.Hosts", "{5C066AAD-6BFC-4F77-9B09-9729A8E30394}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +53,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8496C862-1D33-4D97-9D71-6C593575C3DA} = {A58643CD-C045-4004-9730-64486600FB4E}
+		{903AAFAA-478B-4E7A-94B5-3523DAE6CC98} = {A58643CD-C045-4004-9730-64486600FB4E}
+		{022D349A-2B4C-40EE-BB07-2FA9577739A9} = {ACDB07C3-51E3-4DE7-91DE-C2A54F4741BF}
+		{B3530BA5-8B6E-4858-AB28-650894778AF9} = {ACDB07C3-51E3-4DE7-91DE-C2A54F4741BF}
+		{D075A714-79D4-48F6-88FB-50DF9D99A77A} = {5C066AAD-6BFC-4F77-9B09-9729A8E30394}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D24C1F33-7D25-4633-895A-1F6EE535074C}

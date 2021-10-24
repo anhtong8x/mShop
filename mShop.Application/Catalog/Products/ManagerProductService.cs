@@ -18,46 +18,26 @@ namespace mShop.Application.Catalog.Products
 {
     public class ManagerProductService : IManageProductService
     {
-        private readonly MShopDbContext _dbContext;
-        private readonly IStorageService _storageService;   // de luu file anh product
+        private readonly MShopDbContext mDbContext;
+        private readonly IStorageService mIStorageService;   // de luu file anh product
 
         public ManagerProductService(MShopDbContext dbConext, IStorageService storageService)
         {
-            _dbContext = dbConext;
-            _storageService = storageService;
-        }
-
-        public async Task<int> AddImage(int productId, ProductImageCreateRequest request)
-        {
-            var productImage = new ProductImage()
-            {
-                Caption = request.Caption,
-                DateCreated = DateTime.Now,
-                IsDefault = request.IsDefault,
-                ProductId = productId,
-                SortOrder = request.SortOrder
-            };
-
-            if (request.ImageFile != null)
-            {
-                productImage.ImagePath = await this.SaveFile(request.ImageFile);
-                productImage.FileSize = request.ImageFile.Length;
-            }
-            _dbContext.ProductImages.Add(productImage);
-            await _dbContext.SaveChangesAsync();
-            return productImage.Id;
+            mDbContext = dbConext;
+            mIStorageService = storageService;
         }
 
         public async Task AddViewCount(int productId)
         {
-            var product = await _dbContext.Products.FindAsync(productId);
+            var product = await mDbContext.Products.FindAsync(productId);
             product.ViewCount += 1;
-            await _dbContext.SaveChangesAsync();
+            await mDbContext.SaveChangesAsync();
         }
 
         public async Task<int> Create(ProductCreateRequest request)
         {
-            var item = new Product()
+            // 1. Tao doi tuong Product
+            var produt = new Product()
             {
                 Price = request.Price,
                 OriginalPrice = request.OriginalPrice,
@@ -77,10 +57,10 @@ namespace mShop.Application.Catalog.Products
                 }
             };
 
-            // save image
+            // 2. save image
             if (request.ThumbnailImage != null)
             {
-                item.ProductImages = new List<ProductImage>()
+                produt.ProductImages = new List<ProductImage>()
                 {
                     new ProductImage()
                     {
@@ -94,24 +74,26 @@ namespace mShop.Application.Catalog.Products
                 };
             }
 
-            _dbContext.Products.Add(item);
+            // 3. Goi luu vao db
+            mDbContext.Products.Add(produt);
+            await mDbContext.SaveChangesAsync();
 
-            return await _dbContext.SaveChangesAsync();
+            return produt.Id;
         }
 
         public async Task<int> Delete(int productId)
         {
-            var product = await _dbContext.Products.FindAsync(productId);
+            var product = await mDbContext.Products.FindAsync(productId);
             if (product == null) throw new mShopException($"Cannot find a product: {productId}");
             // get tat ca cac anh cua product theo id va xoa het anh do
-            var images = _dbContext.ProductImages.Where(i => i.ProductId == productId);
+            var images = mDbContext.ProductImages.Where(i => i.ProductId == productId);
             foreach (var image in images)
             {
-                await _storageService.DeleteFileAsync(image.ImagePath);
+                await mIStorageService.DeleteFileAsync(image.ImagePath);
             }
 
-            _dbContext.Products.Remove(product);
-            return await _dbContext.SaveChangesAsync();
+            mDbContext.Products.Remove(product);
+            return await mDbContext.SaveChangesAsync();
         }
 
         public Task<List<ProductViewModel>> GetAll()
@@ -119,23 +101,58 @@ namespace mShop.Application.Catalog.Products
             throw new NotImplementedException();
         }
 
-        public Task<ProductImageViewModel> GetImageById(int imageId)
+        public async Task<ProductViewModel> GetById(string languageId, int productId)
         {
-            throw new NotImplementedException();
+            // 1. Tim dl theo dk o 2 bang
+            var product = await mDbContext.Products.FindAsync(productId);
+            var productTranslation = await mDbContext.ProductTranslations.FirstOrDefaultAsync(x => x.LanguageId == languageId && x.ProductId == productId);
+
+            if (product == null || productTranslation == null) return null;
+
+            // 2. Co the dung automap. Do du lieu vao doi tuong ProductViewModel
+            var productViewModel = new ProductViewModel()
+            {
+                Id = product.Id,
+                DateCreated = product.DateCreated,
+                Description = productTranslation.Description != null ? productTranslation.Description : null,
+                LanguageId = productTranslation.LanguageId,
+                Details = productTranslation != null ? productTranslation.Details : null,
+                Name = productTranslation != null ? productTranslation.Name : null,
+                OriginalPrice = product.OriginalPrice,
+                Price = product.Price,
+                SeoAlias = productTranslation != null ? productTranslation.SeoAlias : null,
+                SeoDescription = productTranslation != null ? productTranslation.SeoDescription : null,
+                SeoTitle = productTranslation != null ? productTranslation.SeoTitle : null,
+                Stock = product.Stock,
+                ViewCount = product.ViewCount
+            };
+
+            return productViewModel;
         }
 
-        public Task<List<ProductImageViewModel>> GetListImages(int productId)
+        public async Task<List<ProductImageViewModel>> GetListImages(int productId)
         {
-            throw new NotImplementedException();
+            return await mDbContext.ProductImages.Where(x => x.ProductId == productId)
+               .Select(i => new ProductImageViewModel()
+               {
+                   Caption = i.Caption,
+                   DateCreated = i.DateCreated,
+                   FileSize = i.FileSize,
+                   Id = i.Id,
+                   ImagePath = i.ImagePath,
+                   IsDefault = i.IsDefault,
+                   ProductId = i.ProductId,
+                   SortOrder = i.SortOrder
+               }).ToListAsync();
         }
 
         public async Task<PageResult<ProductViewModel>> GetPaging(GetManagerProductPagingRequest request)
         {
             // 1. Select join
-            var query = from p in _dbContext.Products
-                        join pt in _dbContext.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _dbContext.ProductInCategories on p.Id equals pic.ProductId
-                        join c in _dbContext.Categories on pic.CategoryId equals c.Id
+            var query = from p in mDbContext.Products
+                        join pt in mDbContext.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in mDbContext.ProductInCategories on p.Id equals pic.ProductId
+                        join c in mDbContext.Categories on pic.CategoryId equals c.Id
                         select new { p, pt, pic };
 
             // 2. Filter
@@ -168,26 +185,67 @@ namespace mShop.Application.Catalog.Products
             // 4. Select and projection
             var pageResult = new PageResult<ProductViewModel>()
             {
-                TotlaPage = totalRow,
+                TotalPage = totalRow,
                 Items = data
             };
 
             return pageResult;
         }
 
+        public async Task<ProductImageViewModel> GetImageById(int imageId)
+        {
+            var image = await mDbContext.ProductImages.FindAsync(imageId);
+            if (image == null)
+                throw new mShopException($"Cannot find an image with id {imageId}");
+
+            var viewModel = new ProductImageViewModel()
+            {
+                Caption = image.Caption,
+                DateCreated = image.DateCreated,
+                FileSize = image.FileSize,
+                Id = image.Id,
+                ImagePath = image.ImagePath,
+                IsDefault = image.IsDefault,
+                ProductId = image.ProductId,
+                SortOrder = image.SortOrder
+            };
+            return viewModel;
+        }
+
+        public async Task<int> AddImage(int productId, ProductImageCreateRequest request)
+        {
+            var productImage = new ProductImage()
+            {
+                Caption = request.Caption,
+                DateCreated = DateTime.Now,
+                IsDefault = request.IsDefault,
+                ProductId = productId,
+                SortOrder = request.SortOrder
+            };
+
+            if (request.ImageFile != null)
+            {
+                productImage.ImagePath = await this.SaveFile(request.ImageFile);
+                productImage.FileSize = request.ImageFile.Length;
+            }
+            mDbContext.ProductImages.Add(productImage);
+            await mDbContext.SaveChangesAsync();
+            return productImage.Id;
+        }
+
         public async Task<int> RemoveImage(int imageId)
         {
-            var productImage = await _dbContext.ProductImages.FindAsync(imageId);
+            var productImage = await mDbContext.ProductImages.FindAsync(imageId);
             if (productImage == null)
                 throw new mShopException($"Cannot find an image with id {imageId}");
-            _dbContext.ProductImages.Remove(productImage);
-            return await _dbContext.SaveChangesAsync();
+            mDbContext.ProductImages.Remove(productImage);
+            return await mDbContext.SaveChangesAsync();
         }
 
         public async Task<int> Update(ProductUpdateRequest request)
         {
-            var product = await _dbContext.Products.FindAsync(request.Id);
-            var productTranslations = await _dbContext.ProductTranslations
+            var product = await mDbContext.Products.FindAsync(request.Id);
+            var productTranslations = await mDbContext.ProductTranslations
                 .FirstOrDefaultAsync(x => x.ProductId == request.Id
                 && x.LanguageId == request.LanguageId);
 
@@ -204,21 +262,21 @@ namespace mShop.Application.Catalog.Products
             //Save image update
             if (request.ThumbnailImage != null)
             {
-                var thumbnailImage = await _dbContext.ProductImages.FirstOrDefaultAsync(i => i.IsDefault == true && i.ProductId == request.Id);
+                var thumbnailImage = await mDbContext.ProductImages.FirstOrDefaultAsync(i => i.IsDefault == true && i.ProductId == request.Id);
                 if (thumbnailImage != null)
                 {
                     thumbnailImage.FileSize = request.ThumbnailImage.Length;
                     thumbnailImage.ImagePath = await this.SaveFile(request.ThumbnailImage);
-                    _dbContext.ProductImages.Update(thumbnailImage);
+                    mDbContext.ProductImages.Update(thumbnailImage);
                 }
             }
 
-            return await _dbContext.SaveChangesAsync();
+            return await mDbContext.SaveChangesAsync();
         }
 
         public async Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request)
         {
-            var productImage = await _dbContext.ProductImages.FindAsync(imageId);
+            var productImage = await mDbContext.ProductImages.FindAsync(imageId);
             if (productImage == null)
                 throw new mShopException($"Cannot find an image with id {imageId}");
 
@@ -227,31 +285,32 @@ namespace mShop.Application.Catalog.Products
                 productImage.ImagePath = await this.SaveFile(request.ImageFile);
                 productImage.FileSize = request.ImageFile.Length;
             }
-            _dbContext.ProductImages.Update(productImage);
-            return await _dbContext.SaveChangesAsync();
+            mDbContext.ProductImages.Update(productImage);
+            return await mDbContext.SaveChangesAsync();
         }
 
         public async Task<bool> UpdatePrice(int productId, decimal newPrice)
         {
-            var product = await _dbContext.Products.FindAsync(productId);
+            var product = await mDbContext.Products.FindAsync(productId);
             if (product == null) throw new mShopException($"Cannot find a with: {productId}");
             product.Price = newPrice;
-            return await _dbContext.SaveChangesAsync() > 0;
+            return await mDbContext.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> UpdateStock(int productId, int addedQuantity)
         {
-            var product = await _dbContext.Products.FindAsync(productId);
+            var product = await mDbContext.Products.FindAsync(productId);
             if (product == null) throw new mShopException($"Cannot find a with: {productId}");
             product.Price += addedQuantity;
-            return await _dbContext.SaveChangesAsync() > 0;
+            return await mDbContext.SaveChangesAsync() > 0;
         }
 
         private async Task<string> SaveFile(IFormFile file)
         {
+            // phai check thu muc luu anh da ton tai chua neu chua fai tao thu muc
             var originalFileName = System.Net.Http.Headers.ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
-            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
+            await mIStorageService.SaveFileAsync(file.OpenReadStream(), fileName);
             return fileName;
         }
 

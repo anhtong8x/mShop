@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using mShop.Application.Catalog.Products;
+using mShop.Application.Common;
 using mShop.Data.EF;
 using mShop.Ultilities.Constants;
 
@@ -36,9 +37,10 @@ namespace mShop.BackendApi
 
             // 2. DI cac service
             // Phai khai bao cac service se dung trong cac controller
-
             // Moi lan yc 1 obj IPublicProductService thi se khoi tao 1 obj class PublicProductService
             services.AddTransient<IPublicProductService, PublicProductService>();
+            services.AddTransient<IManageProductService, ManagerProductService>();
+            services.AddTransient<IStorageService, FileStorageService>();           // IStorageServie khai bao trong ManageService nen fai khai bao khi dung
 
             // 3. mac dinh
             services.AddControllersWithViews();
@@ -75,6 +77,7 @@ namespace mShop.BackendApi
             // UserSwaggerUI
             // Duong dan chua file mo to cac function trong swagger
             app.UseSwagger();
+
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger eShop V1");

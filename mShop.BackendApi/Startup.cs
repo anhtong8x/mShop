@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using mShop.Application.Catalog.Products;
 using mShop.Application.Common;
+using mShop.Application.System.Users;
 using mShop.Data.EF;
+using mShop.Data.Entities;
 using mShop.Ultilities.Constants;
 
 namespace mShop.BackendApi
@@ -36,11 +34,23 @@ namespace mShop.BackendApi
             option.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
 
             // 2. DI cac service
+
+            // khai bao tat ca cho UsersController.cs
+            // khai bao nay de applly all service cua AppUser, AppRole
+            services.AddIdentity<AppUser, AppRole>()
+                    .AddEntityFrameworkStores<MShopDbContext>()
+                    .AddDefaultTokenProviders();
+
             // Phai khai bao cac service se dung trong cac controller
             // Moi lan yc 1 obj IPublicProductService thi se khoi tao 1 obj class PublicProductService
             services.AddTransient<IPublicProductService, PublicProductService>();
             services.AddTransient<IManageProductService, ManagerProductService>();
             services.AddTransient<IStorageService, FileStorageService>();           // IStorageServie khai bao trong ManageService nen fai khai bao khi dung
+
+            services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
+            services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
+            services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
+            services.AddTransient<IUserService, UserService>();
 
             // 3. mac dinh
             services.AddControllersWithViews();

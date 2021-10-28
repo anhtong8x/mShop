@@ -12,12 +12,12 @@ namespace mShop.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IPublicProductService mIPublicProductService;
         private readonly IManageProductService mIManageProductService;
 
-        public ProductController(IPublicProductService nIPublicProductService, IManageProductService nIManageProductService)
+        public ProductsController(IPublicProductService nIPublicProductService, IManageProductService nIManageProductService)
         {
             mIPublicProductService = nIPublicProductService;
             mIManageProductService = nIManageProductService;

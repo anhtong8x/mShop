@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
 using mShop.Application.Common;
 using mShop.Data.EF;
 using mShop.Data.Entities;
@@ -12,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace mShop.Application.Catalog.Products
@@ -308,7 +308,8 @@ namespace mShop.Application.Catalog.Products
         private async Task<string> SaveFile(IFormFile file)
         {
             // phai check thu muc luu anh da ton tai chua neu chua fai tao thu muc
-            var originalFileName = System.Net.Http.Headers.ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            // using System.Net.Http.Headers;
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
             await mIStorageService.SaveFileAsync(file.OpenReadStream(), fileName);
             return fileName;

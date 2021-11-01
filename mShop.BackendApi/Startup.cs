@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +16,7 @@ using mShop.Application.System.Users;
 using mShop.Data.EF;
 using mShop.Data.Entities;
 using mShop.Ultilities.Constants;
+using mShop.ViewModel.System.Users;
 using System.Collections.Generic;
 
 namespace mShop.BackendApi
@@ -55,9 +58,17 @@ namespace mShop.BackendApi
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
             services.AddTransient<IUserService, UserService>();
 
+            // Dang ky Fluent Validation. Register tung class
+            //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
+            //services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
+
+            // Register tat ca
+            services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+
             // 3. mac dinh
             //services.AddControllersWithViews();
-            services.AddControllers(); // them dong nay de cau hinh authenticate cho swagger
+            // services.AddControllers(); // them dong nay de cau hinh authenticate cho swagger
 
             // 4. Add swager
             services.AddSwaggerGen(c =>

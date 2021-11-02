@@ -28,7 +28,7 @@ namespace mShop.ViewModel.System.Users
             RuleFor(x => x).Custom((request, context) =>
             {
                 if (request.Password != request.ConfirmPassword)
-                    context.AddFailure("confirm password is not match")
+                    context.AddFailure("confirm password is not match");
             });
         }
     }

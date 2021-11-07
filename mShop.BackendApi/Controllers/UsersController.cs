@@ -25,7 +25,7 @@ namespace mShop.BackendApi.Controllers
         [HttpPost("authenticate")]
         [AllowAnonymous]
         // AllowAnonymous cho phep chua login cung goi dc ham nay
-        public async Task<IActionResult> Authenticate([FromForm] LoginRequest request)
+        public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -39,7 +39,7 @@ namespace mShop.BackendApi.Controllers
         [HttpPost("register")]
         [AllowAnonymous]
         // AllowAnonymous cho phep chua login cung goi dc ham nay
-        public async Task<IActionResult> Resgister([FromForm] RegisterRequest request)
+        public async Task<IActionResult> Resgister([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

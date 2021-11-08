@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using mShop.Data.Entities;
 using mShop.Ultilities.Exceptions;
+using mShop.ViewModel.Common;
 using mShop.ViewModel.System.Users;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,7 +49,8 @@ namespace mShop.Application.System.Users
             var claims = new[] {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.GivenName, user.Email),
-                new Claim(ClaimTypes.Role, string.Join(";",roles)) // noi list cac roles thanh chuoi ngan cach boi ;
+                new Claim(ClaimTypes.Role, string.Join(";",roles)),// noi list cac roles thanh chuoi ngan cach boi ;
+                new Claim(ClaimTypes.Name, request.UserName)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(mIConfiguration["Tokens:Key"]));
@@ -59,6 +63,49 @@ namespace mShop.Application.System.Users
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<PageResult<UserViewModel>> GetUsersPaging(GetUserPagingRequest request)
+        {
+            // lay ve bang user
+            var query = mUserManager.Users;
+
+            // dung linq de tim theo keyword trong request
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                query = query.Where(
+                    x => x.UserName.Contains(request.Keyword) || x.PhoneNumber.Contains(request.Keyword)
+                    );
+            }
+
+            // paging
+            int totalRow = await query.CountAsync();
+
+            // skip - lay ve
+            var data = await query.Skip(
+                    (request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(
+                    x => new UserViewModel()
+                    {
+                        Email = x.Email,
+                        UserName = x.UserName,
+                        PhoneNumber = x.PhoneNumber,
+                        Dob = x.Dob,
+                        LastName = x.LastName,
+                        FirstName = x.FirstName,
+                        Id = x.Id
+                    })
+                .ToListAsync();
+
+            // select
+            var pageResult = new PageResult<UserViewModel>()
+            {
+                TotalPage = totalRow,
+                Items = data
+            };
+
+            return pageResult;
         }
 
         public async Task<bool> Register(RegisterRequest request)

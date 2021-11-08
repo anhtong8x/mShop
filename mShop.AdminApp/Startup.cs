@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,10 +30,25 @@ namespace mShop.AdminApp
             // add vào cho httpclientfactory
             services.AddHttpClient();
 
+            // cau hinh authen
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
+                options =>
+                {
+                    options.LoginPath = "/User/Login/";
+                    options.AccessDeniedPath = "/Account/Forbidden";
+                }
+                );
+
             // dang ky Fluent Validation
             services.AddControllersWithViews()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 
+            // add sesssion token
+            services.AddSession(
+                options => options.IdleTimeout = TimeSpan.FromMinutes(30)
+                ); ;
+
+            // dang ky DI
             services.AddTransient<IUserApiClient, UserApiClient>();
 
             IMvcBuilder builder = services.AddRazorPages();
@@ -62,11 +78,18 @@ namespace mShop.AdminApp
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
             app.UseStaticFiles();
+
+            // cau hinh fai authen moi vao trang chu
+            app.UseAuthentication();
 
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // add session
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

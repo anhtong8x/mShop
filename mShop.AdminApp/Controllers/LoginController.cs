@@ -44,7 +44,7 @@ namespace mShop.AdminApp.Controllers
             var token = await mIUserApiClient.Authenticate(request);
 
             // giai ma token
-            var userPrincipal = this.ValidateToken(token);
+            var userPrincipal = this.ValidateToken(token.ResultObj);
             var authoProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
@@ -52,7 +52,7 @@ namespace mShop.AdminApp.Controllers
             };
 
             // luu session. Day token vao session
-            HttpContext.Session.SetString("Token", token);
+            HttpContext.Session.SetString("Token", token.ResultObj);
 
             // bat dau sigin
             await HttpContext.SignInAsync(

@@ -6,6 +6,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +48,9 @@ namespace mShop.AdminApp
             services.AddSession(
                 options => options.IdleTimeout = TimeSpan.FromMinutes(30)
                 ); ;
+
+            // add singleton chi co 1 khoi tao. de no khoi tao ra httpcontextAccessor. luu sesssion bearer trong do
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // dang ky DI
             services.AddTransient<IUserApiClient, UserApiClient>();

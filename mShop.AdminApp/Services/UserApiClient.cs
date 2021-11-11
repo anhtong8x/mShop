@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using mShop.ViewModel.Common;
 using mShop.ViewModel.System.Users;
 using Newtonsoft.Json;
@@ -19,14 +20,18 @@ namespace mShop.AdminApp.Services
 
         private readonly IConfiguration mIConfiguration;
 
-        public UserApiClient(IHttpClientFactory nIHttpClientFactory, IConfiguration nIConfiguration)
+        private readonly IHttpContextAccessor mIHttpContextAccessor;
+
+        public UserApiClient(IHttpClientFactory nIHttpClientFactory, IHttpContextAccessor nIHttpContextAccessor,
+            IConfiguration nIConfiguration)
         {
             mIHttpClientFactory = nIHttpClientFactory;
             mIConfiguration = nIConfiguration;
+            mIHttpContextAccessor = nIHttpContextAccessor;
         }
 
         // https://localhost:44381/api/Users/authenticate
-        public async Task<string> Authenticate(LoginRequest request)
+        public async Task<ApiResult<string>> Authenticate(LoginRequest request)
         {
             var json = JsonConvert.SerializeObject(request);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
@@ -37,28 +42,34 @@ namespace mShop.AdminApp.Services
 
             var response = await client.PostAsync("/api/Users/authenticate", httpContent);
 
-            var token = await response.Content.ReadAsStringAsync();
-            return token;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(await response.Content.ReadAsStringAsync());
+            }
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync());
         }
 
         // https://localhost:44381/api/Users/paging?Keyword=a&PageIndex=1&PageSize=3&BearerToken=Bearer
-        public async Task<PageResult<UserViewModel>> GetUsersPagings(GetUserPagingRequest request)
+        public async Task<ApiResult<PageResult<UserViewModel>>> GetUsersPagings(GetUserPagingRequest request)
         {
+            var sessions = mIHttpContextAccessor.HttpContext.Session.GetString("Token");
+
             var client = mIHttpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.BearerToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
             client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
 
             var response = await client.GetAsync($"/api/Users/paging?Keyword={request.Keyword}&PageIndex={request.PageIndex}&PageSize={request.PageSize}");
 
             var body = await response.Content.ReadAsStringAsync();
 
-            var users = JsonConvert.DeserializeObject<PageResult<UserViewModel>>(body);
+            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PageResult<UserViewModel>>>(body);
 
             return users;
         }
 
         // https://localhost:44381/api/Users/register
-        public async Task<bool> RegisterUser(RegisterRequest request)
+        public async Task<ApiResult<bool>> RegisterUser(RegisterRequest request)
         {
             var client = mIHttpClientFactory.CreateClient();
             client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
@@ -69,7 +80,47 @@ namespace mShop.AdminApp.Services
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await client.PostAsync("/api/Users/register", httpContent);
 
-            return response.IsSuccessStatusCode;    // thanh cong la 200
+            var result = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+            }
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+        }
+
+        public async Task<ApiResult<UserViewModel>> GetById(Guid id)
+        {
+            var sessions = mIHttpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = mIHttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.GetAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<UserViewModel>>(body);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<UserViewModel>>(body);
+        }
+
+        public async Task<ApiResult<bool>> UpdateUser(Guid id, UserUpdateRequest request)
+        {
+            var client = mIHttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
+            var sessions = mIHttpContextAccessor.HttpContext.Session.GetString("Token");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PutAsync($"/api/users/{id}", httpContent);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
         }
 
         // end class

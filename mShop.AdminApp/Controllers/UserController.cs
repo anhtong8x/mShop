@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace mShop.AdminApp.Controllers
 {
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly IUserApiClient mIUserApiClient;
         private readonly IConfiguration mIConfiguration;    // khoi tao 1 lan dung private readonly
@@ -27,6 +27,7 @@ namespace mShop.AdminApp.Controllers
             mIConfiguration = nIConfiguration;
         }
 
+        // pageIndex =1, pagesize = 10 gia tri mac dinh
         public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
         {
             // lay ve session da luu
@@ -45,44 +46,6 @@ namespace mShop.AdminApp.Controllers
             return View(data);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Login()
-        {
-            // vao trang login thi login het seccsion cu
-            // login bang skill nao the logout bang skill do
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginRequest request)
-        {
-            if (!ModelState.IsValid) return View(ModelState);
-
-            var token = await mIUserApiClient.Authenticate(request);
-
-            // giai ma token
-            var userPrincipal = this.ValidateToken(token);
-            var authoProperties = new AuthenticationProperties
-            {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                IsPersistent = true // = true de khong fai login lai
-            };
-
-            // luu session. Day token vao session
-            HttpContext.Session.SetString("Token", token);
-
-            // bat dau sigin
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                userPrincipal,
-                authoProperties
-                );
-
-            // chuyen den trang home
-            return RedirectToAction("Index", "Home");
-        }
-
         // ham logout
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -90,29 +53,27 @@ namespace mShop.AdminApp.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Remove("Token");    // logout thi remove token di
             // chuyen den trang home
-            return RedirectToAction("Login", "User"); ;
+            return RedirectToAction("Index", "Login"); ;
         }
 
-        // ham giai ma token
-        private ClaimsPrincipal ValidateToken(string jwtToken)
+        [HttpGet]
+        public IActionResult Create()
         {
-            IdentityModelEventSource.ShowPII = true;
+            return View();
+        }
 
-            SecurityToken validatedToken;
+        [HttpPost]
+        public async Task<IActionResult> Create(RegisterRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
 
-            TokenValidationParameters validationParameters = new TokenValidationParameters();
+            var result = await mIUserApiClient.RegisterUser(request);
 
-            validationParameters.ValidateLifetime = true;
+            if (result)
+                return RedirectToAction("Index");   // thanh cong chuyen den action phan trang index ben tren
 
-            validationParameters.ValidAudience = mIConfiguration["Tokens:Issuer"];
-
-            validationParameters.ValidIssuer = mIConfiguration["Tokens:Issuer"];
-
-            validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(mIConfiguration["Tokens:Key"]));
-
-            ClaimsPrincipal principal = new JwtSecurityTokenHandler()
-                .ValidateToken(jwtToken, validationParameters, out validatedToken);
-            return principal;
+            return View(request);   // tra lai cai view co san du lieu de ta sua trong truong hop loi
         }
 
         // end class

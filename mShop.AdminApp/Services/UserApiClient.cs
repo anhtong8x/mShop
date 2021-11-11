@@ -25,6 +25,7 @@ namespace mShop.AdminApp.Services
             mIConfiguration = nIConfiguration;
         }
 
+        // https://localhost:44381/api/Users/authenticate
         public async Task<string> Authenticate(LoginRequest request)
         {
             var json = JsonConvert.SerializeObject(request);
@@ -54,6 +55,21 @@ namespace mShop.AdminApp.Services
             var users = JsonConvert.DeserializeObject<PageResult<UserViewModel>>(body);
 
             return users;
+        }
+
+        // https://localhost:44381/api/Users/register
+        public async Task<bool> RegisterUser(RegisterRequest request)
+        {
+            var client = mIHttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
+            // Bearer da luu trong annonimos. Token duoc luu trong do
+
+            // Tao moi user se post den UserController.cs .Post fai co 1 content
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("/api/Users/register", httpContent);
+
+            return response.IsSuccessStatusCode;    // thanh cong la 200
         }
 
         // end class

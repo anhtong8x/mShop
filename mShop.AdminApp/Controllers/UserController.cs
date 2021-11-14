@@ -42,9 +42,17 @@ namespace mShop.AdminApp.Controllers
             };
 
             var data = await mIUserApiClient.GetUsersPagings(request);
+
             // ViewBag truyen gia tri tu controller xuong view. Khi tim ta muon luu lai key nhap vao o tim, ta truyen qua viewbag
             // khai bao viewbag o day va o view index.cshtml
             ViewBag.Keyword = keyword;
+
+            // Nhan tempData - de cap nhat xuong view
+            if(TempData["result"] != null)
+            {
+                ViewBag.SuccessMsg = TempData["result"];
+            }
+
             return View(data.ResultObj);
         }
 
@@ -81,7 +89,10 @@ namespace mShop.AdminApp.Controllers
             var result = await mIUserApiClient.RegisterUser(request);
 
             if (result.IsSuccessed)
+            {
+                TempData["result"] = "Tạo người dùng thành công";
                 return RedirectToAction("Index");   // thanh cong chuyen den action phan trang index ben tren
+            }    
 
             ModelState.AddModelError("", result.Message);
 
@@ -118,7 +129,13 @@ namespace mShop.AdminApp.Controllers
 
             var result = await mIUserApiClient.UpdateUser(request.Id, request);
             if (result.IsSuccessed)
+            {
+                // truyen temData sang view
+                TempData["result"] = "Cập nhật người dùng thành công";
+
                 return RedirectToAction("Index");
+            }
+                
 
             ModelState.AddModelError("", result.Message);
             return View(request);
@@ -142,8 +159,13 @@ namespace mShop.AdminApp.Controllers
 
             var result = await mIUserApiClient.Delete(request.Id);
             if (result.IsSuccessed)
-                return RedirectToAction("Index");
+            {
+                // truyen temData sang view
+                TempData["result"] = "Xóa người dùng thành công";
 
+                return RedirectToAction("Index");
+            }    
+                
             ModelState.AddModelError("", result.Message);
             return View(request);
         }

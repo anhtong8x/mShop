@@ -28,7 +28,7 @@ namespace mShop.AdminApp.Controllers
         }
 
         // pageIndex =1, pagesize = 10 gia tri mac dinh
-        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 1)
         {
             // lay ve session da luu
             // var session = HttpContext.Session.GetString("Token");
@@ -44,6 +44,14 @@ namespace mShop.AdminApp.Controllers
             var data = await mIUserApiClient.GetUsersPagings(request);
 
             return View(data.ResultObj);
+        }
+
+        // chi tiet user
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var result = await mIUserApiClient.GetById(id);
+            return View(result.ResultObj);
         }
 
         // ham logout

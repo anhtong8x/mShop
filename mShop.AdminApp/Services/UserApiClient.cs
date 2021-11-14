@@ -20,7 +20,7 @@ namespace mShop.AdminApp.Services
 
         private readonly IConfiguration mIConfiguration;
 
-        private readonly IHttpContextAccessor mIHttpContextAccessor;
+        private readonly IHttpContextAccessor mIHttpContextAccessor;    // khoi tao 1 lan de lay ve session
 
         public UserApiClient(IHttpClientFactory nIHttpClientFactory, IHttpContextAccessor nIHttpContextAccessor,
             IConfiguration nIConfiguration)

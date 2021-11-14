@@ -4,9 +4,8 @@ using System.Text;
 
 namespace mShop.ViewModel.Common
 {
-    public class PageResult<T>
+    public class PageResult<T> : PagedResultBase
     {
-        public int TotalPage { get; set; }
         public List<T> Items { get; set; }
     }
 }

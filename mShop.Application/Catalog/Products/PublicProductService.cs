@@ -85,7 +85,9 @@ namespace mShop.Application.Catalog.Products
             // 4. Select and projection
             var pageResult = new PageResult<ProductViewModel>()
             {
-                TotalPage = totalRow,
+                TotalRecords = totalRow,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
                 Items = data
             };
 

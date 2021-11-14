@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace mShop.AdminApp.Controllers
 {
+    // check login trong day. neu chua co session thi den trang login
     [Authorize]
     public class BaseController : Controller
     {

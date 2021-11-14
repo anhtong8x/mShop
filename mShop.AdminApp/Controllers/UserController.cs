@@ -122,6 +122,31 @@ namespace mShop.AdminApp.Controllers
             return View(request);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            return View(
+                new UserDeleteRequest()
+                {
+                    Id = id
+                });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await mIUserApiClient.Delete(request.Id);
+            if (result.IsSuccessed)
+                return RedirectToAction("Index");
+
+            ModelState.AddModelError("", result.Message);
+            return View(request);
+        }
+
+
         // end class
     }
 }

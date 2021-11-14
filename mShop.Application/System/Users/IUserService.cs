@@ -13,6 +13,8 @@ namespace mShop.Application.System.Users
 
         public Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request);
 
+        public Task<ApiResult<bool>> Delete(Guid id);
+
         public Task<ApiResult<UserViewModel>> GetById(Guid id);
 
         public Task<ApiResult<PageResult<UserViewModel>>> GetUsersPaging(GetUserPagingRequest request);

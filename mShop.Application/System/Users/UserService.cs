@@ -181,6 +181,19 @@ namespace mShop.Application.System.Users
             return new ApiSuccessResult<UserViewModel>(userVm);
         }
 
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var user = await mUserManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return new ApiErrorResult<bool>("User không tồn tại");
+            var result = await mUserManager.DeleteAsync(user);
+
+            if(result.Succeeded)               
+                return new ApiSuccessResult<bool>();
+
+            return new ApiErrorResult<bool>("Không thể xóa User");
+        }
+
         // end class
     }
 }

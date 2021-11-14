@@ -24,36 +24,30 @@
                     <thead>
                         <tr>
                             <th>
-                                ID
+                                Họ
                             </th>
                             <th>
-                                FirstName
+                                Tên
                             </th>
                             <th>
-                                LastName
+                                Điện thoại
                             </th>
                             <th>
-                                PhoneNumber
+                                Ngày sinh
                             </th>
                             <th>
-                                Dob
+                                Tài khoản
                             </th>
                             <th>
-                                User_Name
+                                Hòm thư
                             </th>
-                            <th>
-                                UserEmail
-                            </th>
-                            <th></th>
+                            <th>Chức năng</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.Items)
                         {
                             <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Id)
-                                </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.FirstName)
                                 </td>

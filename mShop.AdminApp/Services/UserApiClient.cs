@@ -96,6 +96,7 @@ namespace mShop.AdminApp.Services
             var client = mIHttpClientFactory.CreateClient();
             client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            
             var response = await client.GetAsync($"/api/users/{id}");
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
@@ -121,6 +122,21 @@ namespace mShop.AdminApp.Services
                 return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
 
             return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+        }
+
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var sessions = mIHttpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = mIHttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+
+            var response = await client.DeleteAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
         }
 
         // end class

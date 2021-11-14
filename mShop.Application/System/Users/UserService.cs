@@ -33,13 +33,15 @@ namespace mShop.Application.System.Users
         public async Task<ApiResult<string>> Authenticate(LoginRequest request)
         {
             var user = await mUserManager.FindByNameAsync(request.UserName);
-            if (user == null) throw new mShopException($"Cannot find a user{request.UserName}");
+            if (user == null) { 
+                //throw new mShopException($"Cannot find a user{request.UserName}");
+                return new ApiErrorResult<string>("Tài khoản không tồn tại");
+            } 
 
-            var result = await mSignInManager.PasswordSignInAsync(user, request.PassWord,
-                request.RememberMe, true);
+            var result = await mSignInManager.PasswordSignInAsync(user, request.PassWord,request.RememberMe, true);
             if (!result.Succeeded)
             {
-                return null;
+                return new ApiErrorResult<string>("Đăng nhập thât bại");
             }
 
             // lay ra list cac role cua user
@@ -186,6 +188,7 @@ namespace mShop.Application.System.Users
             var user = await mUserManager.FindByIdAsync(id.ToString());
             if (user == null)
                 return new ApiErrorResult<bool>("User không tồn tại");
+
             var result = await mUserManager.DeleteAsync(user);
 
             if(result.Succeeded)               

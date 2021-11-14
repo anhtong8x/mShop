@@ -42,7 +42,9 @@ namespace mShop.AdminApp.Controllers
             };
 
             var data = await mIUserApiClient.GetUsersPagings(request);
-
+            // ViewBag truyen gia tri tu controller xuong view. Khi tim ta muon luu lai key nhap vao o tim, ta truyen qua viewbag
+            // khai bao viewbag o day va o view index.cshtml
+            ViewBag.Keyword = keyword;
             return View(data.ResultObj);
         }
 

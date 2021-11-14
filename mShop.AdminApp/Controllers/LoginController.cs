@@ -41,10 +41,16 @@ namespace mShop.AdminApp.Controllers
         {
             if (!ModelState.IsValid) return View(ModelState);
 
-            var token = await mIUserApiClient.Authenticate(request);
+            var result = await mIUserApiClient.Authenticate(request);
+            if(result.ResultObj == null)
+            {
+                // neu null tra ve 1 view, co dua model view vao. Them dong de show ra loi trong long/index.cshtml
+                ModelState.AddModelError("", result.Message);
+                return View();
+            }
 
             // giai ma token
-            var userPrincipal = this.ValidateToken(token.ResultObj);
+            var userPrincipal = this.ValidateToken(result.ResultObj);
             var authoProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
@@ -52,7 +58,7 @@ namespace mShop.AdminApp.Controllers
             };
 
             // luu session. Day token vao session
-            HttpContext.Session.SetString("Token", token.ResultObj);
+            HttpContext.Session.SetString("Token", result.ResultObj);
 
             // bat dau sigin
             await HttpContext.SignInAsync(

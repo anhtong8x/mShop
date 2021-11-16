@@ -18,5 +18,7 @@ namespace mShop.Application.System.Users
         public Task<ApiResult<UserViewModel>> GetById(Guid id);
 
         public Task<ApiResult<PageResult<UserViewModel>>> GetUsersPaging(GetUserPagingRequest request);
+
+        public Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request);
     }
 }

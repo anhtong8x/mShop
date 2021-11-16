@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using mShop.Data.Entities;
-using mShop.Ultilities.Exceptions;
 using mShop.ViewModel.Common;
 using mShop.ViewModel.System.Users;
 using System;
@@ -12,6 +11,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic; 
 
 namespace mShop.Application.System.Users
 {
@@ -170,6 +170,10 @@ namespace mShop.Application.System.Users
             {
                 return new ApiErrorResult<UserViewModel>("User không tồn tại");
             }
+
+            // lay ve roles dc gan cho user
+            var roles = await mUserManager.GetRolesAsync(user);
+
             var userVm = new UserViewModel()
             {
                 Email = user.Email,
@@ -178,7 +182,8 @@ namespace mShop.Application.System.Users
                 Dob = user.Dob,
                 Id = user.Id,
                 LastName = user.LastName,
-                UserName = user.UserName
+                UserName = user.UserName, 
+                Roles = roles
             };
             return new ApiSuccessResult<UserViewModel>(userVm);
         }
@@ -195,6 +200,37 @@ namespace mShop.Application.System.Users
                 return new ApiSuccessResult<bool>();
 
             return new ApiErrorResult<bool>("Không thể xóa User");
+        }
+
+        public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
+        {
+            // tim user
+            var user = await mUserManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return new ApiErrorResult<bool>("User không tồn tại");
+
+            // remove cac role khong duoc select trong mang cac role
+            // 1. lay ve ten cac role not selected dua sang list           
+            var removedRoles = request.Roles.Where(x => x.Selected == false).Select(x => x.Name).ToList();
+            // 2. lap list cac role, role nao dang duoc gan cho use == true thi ta remove no di
+            foreach(var roleName in removedRoles)
+            {
+                if (await mUserManager.IsInRoleAsync(user, roleName) == true)
+                    await mUserManager.RemoveFromRoleAsync(user, roleName);
+            }
+
+            // add cac role duoc selected
+            // 1. lay ve cac role duoc select dua vao list
+            var addedRoles = request.Roles.Where(x => x.Selected).Select(x => x.Name).ToList();
+            foreach(var roleName in addedRoles)
+            {
+                if(await mUserManager.IsInRoleAsync(user, roleName) == false)
+                {
+                    await mUserManager.AddToRoleAsync(user, roleName);
+                }
+            }
+
+            return new ApiSuccessResult<bool>();
         }
 
         // end class

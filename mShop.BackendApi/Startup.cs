@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using mShop.Application.Catalog.Products;
 using mShop.Application.Common;
+using mShop.Application.System.Roles;
 using mShop.Application.System.Users;
 using mShop.Data.EF;
 using mShop.Data.Entities;
@@ -57,6 +58,7 @@ namespace mShop.BackendApi
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IRoleService, RoleService>();
 
             // Dang ky Fluent Validation. Register tung class
             //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();

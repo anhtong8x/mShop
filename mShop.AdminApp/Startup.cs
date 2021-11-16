@@ -54,6 +54,7 @@ namespace mShop.AdminApp
 
             // dang ky DI
             services.AddTransient<IUserApiClient, UserApiClient>();
+            services.AddTransient<IRoleApiClient, RoleApiClient>();
 
             IMvcBuilder builder = services.AddRazorPages();
 

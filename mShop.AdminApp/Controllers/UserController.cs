@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using mShop.AdminApp.Services;
+using mShop.ViewModel.Common;
 using mShop.ViewModel.System.Users;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -20,11 +21,13 @@ namespace mShop.AdminApp.Controllers
     {
         private readonly IUserApiClient mIUserApiClient;
         private readonly IConfiguration mIConfiguration;    // khoi tao 1 lan dung private readonly
+        private readonly IRoleApiClient mIRoleApiClient;
 
-        public UserController(IUserApiClient nIUserApiClient, IConfiguration nIConfiguration)
+        public UserController(IUserApiClient nIUserApiClient, IConfiguration nIConfiguration, IRoleApiClient nIRoleApiClient)
         {
             mIUserApiClient = nIUserApiClient;
             mIConfiguration = nIConfiguration;
+            mIRoleApiClient = nIRoleApiClient;
         }
 
         // pageIndex =1, pagesize = 10 gia tri mac dinh
@@ -171,6 +174,54 @@ namespace mShop.AdminApp.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> RoleAssign(Guid id)
+        {
+            var roleAssign = await GetRoleAssignRequest(id);
+            return View(roleAssign);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RoleAssign(RoleAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await mIUserApiClient.RoleAssign(request.Id, request);
+            if (result.IsSuccessed)
+            {
+                // truyen temData sang view
+                TempData["result"] = "Cập nhật quyền thành công";
+
+                return RedirectToAction("Index");
+            }
+
+
+            ModelState.AddModelError("", result.Message);
+
+            // truong hop update loi van can show ra cac role cho user nay
+            var roleAssign = await GetRoleAssignRequest(request.Id);
+
+            return View(roleAssign);
+        }
+
+        private async Task<RoleAssignRequest> GetRoleAssignRequest(Guid id)
+        {
+            var userObj = await mIUserApiClient.GetById(id);
+            var roleObj = await mIRoleApiClient.GetAll();
+            var roleAssignRequest = new RoleAssignRequest();
+
+            foreach (var role in roleObj.ResultObj)
+            {
+                roleAssignRequest.Roles.Add(new SelectItem()
+                {
+                    Id = role.Id.ToString(),
+                    Name = role.Name,
+                    Selected = userObj.ResultObj.Roles.Contains(role.Name)
+                });
+            }
+            return roleAssignRequest;
+        }
         // end class
     }
 }

@@ -139,6 +139,25 @@ namespace mShop.AdminApp.Services
             return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
         }
 
+        public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
+        {
+            var client = mIHttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(mIConfiguration["BaseAddress"]);
+            var sessions = mIHttpContextAccessor.HttpContext.Session.GetString("Token");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PutAsync($"/api/users/{id}/roles", httpContent);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+        }
+
         // end class
     }
 }
